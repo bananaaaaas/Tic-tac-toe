@@ -1,0 +1,89 @@
+from tkinter import messagebox
+from tkinter import *
+
+turns = 0
+board = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+def printBoard(canvas):
+    global board
+    canvas.delete('all')
+    board = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+    
+    for i in range(1, 3):
+        canvas.create_line(200*i, 0, 200*i, 600, width=2, fill='light grey')
+        canvas.create_line(0, 200*i, 600, 200*i, width=2, fill='light grey')
+
+
+def create_O(canvas, x, y):
+    
+    canvas.create_oval(x-100, y-100, x+100, y+100)
+
+
+def create_X(canvas, x, y):
+    
+    canvas.create_line(x-100, y-100, x+100, y+100)
+    canvas.create_line(x+100, y-100, x-100, y+100)
+
+
+def turn():
+    
+    global turns
+    turns +=1
+    if turns % 2 == 0:
+        return "O"
+    else:
+        return "X"
+
+
+def eventXYToBoard(x,y):
+    convertList = [0, 200, 400, 600]
+    for i in range(3):
+        for h in range(3):
+            if convertList[i]<= x <= convertList[i+1] and convertList[h] <= y <= convertList[h+1]:
+                return i + 3*h
+
+def click(event):
+    global board
+    x_coord = {0: 100, 1: 300, 2: 500, 3: 100, 4: 300, 5: 500, 6: 100, 7: 300, 8: 500}
+    y_coord = {0: 100, 1: 100, 2: 100, 3: 300, 4: 300, 5: 300, 6: 500, 7: 500, 8: 500}
+    if board[eventXYToBoard(event.x, event.y)] == 0:
+        
+        if turn() == "X":
+            create_X(event.widget, x_coord[(eventXYToBoard(event.x, event.y))], y_coord[(eventXYToBoard(event.x, event.y))])
+            board[eventXYToBoard(event.x, event.y)] = 1
+            check_win(event.widget)
+
+        else:
+
+            create_O(event.widget, x_coord[(eventXYToBoard(event.x, event.y))], y_coord[(eventXYToBoard(event.x, event.y))])
+            board[eventXYToBoard(event.x, event.y)] = 2
+            check_win(event.widget)
+    
+
+def check_win(canvas):
+    
+    global board
+
+    for x in range(3):
+        if board[x] == board[x+3] == board[x+6] == 1 or board[x*3] == board[x*3+1] == board[x*3+2] == 1 or board[0] == board[4] == board[8] == 1 or board[2] == board[4] == board[6] == 1:
+            messagebox.showinfo("Congratulations", "Player X wins!")
+            canvas.destroy()
+        elif board[x*3] == board[x*3+1] == board[x*3+2] == 2 or board[x] == board[x+3] == board[x+6] == 2 or board[0] == board[4] == board[8] == 2 or board[2] == board[4] == board[6] == 2:
+            messagebox.showinfo("Congratulations", "Player O wins!")
+            canvas.destroy()
+    
+        
+def main():
+
+    root = Tk()
+    canvasWidth = 600
+    canvasHeight = 600
+    canvas = Canvas(root, width=canvasWidth, height=canvasHeight)
+    canvas.pack()
+    root.resizable(False, False)
+    printBoard(canvas)
+    canvas.bind("<Button-1>", click)
+    root.mainloop()
+
+    
+main()
